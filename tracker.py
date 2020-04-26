@@ -14,8 +14,46 @@ from  matplotlib.figure  import  Figure
 
 import  numpy  as  np 
 import  random
+import glob, os
+
+for files in glob.glob('*.sqlite'):
+    print(os.path.splitext(files)[0])
+
 
 ERROR_MSG = 'ERROR'
+
+
+class InitialWindow(QtWidgets.QDialog):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("initial_dialog.ui",self)
+        self.setWindowTitle("Initiate project")
+        #self.open()
+        #self.setModal(True)
+        #self.show()
+
+        btnOpen = self.btnOpenProject
+        btnNew = self.btnNewProject
+        btnOpen.clicked.connect(self.accept)
+        btnNew.clicked.connect(self.reject)
+        self.findProjectsInFolder()
+        self._model = ModelProjects()
+        self.listView.setModel(self._model)
+        self.selectedItem = self.listView.currentIndex()
+        print(self.selectedItem.row())
+    
+
+        
+
+    def closeFunction(self):
+        self.accept()
+        print('zavri okno')
+    
+    def findProjectsInFolder(self):
+        print(glob.glob('*.sqlite'))
+
+
+
 
 
 class MyWindow(QtWidgets.QMainWindow):
@@ -31,19 +69,73 @@ class MyWindow(QtWidgets.QMainWindow):
         self.dialogCathegoryRemove = self.newDialog(self.dialogUi, 'Remove cathegory')
         self.dialogRemoveAll = self.newDialog(self.dialogRemove, 'Remove all')
 
+        self.projectName = None
+
+
         self.loadWindowUi()
         self.setWindowTitle('Expense Tracker')
         self.show()
 
+        self.dialogNewProject = QtWidgets.QDialog()
+        uic.loadUi("dialog_NewProject.ui",self.dialogNewProject)
+
+        self.initialDialog = InitialWindow()
+        self.openInitialDialog(self.initialDialog, self.dialogNewProject)
+
+
+
+
         self.dateAdd.setCalendarPopup(True)
         self.dateAdd.setDate(date.today())
         self.dateFilterFrom.setCalendarPopup(True)
-        self.dateFilterFrom.setDate(date.today()) ### pokud budou data v tabulce, tak Controler to prenastavi na datum prvniho zaznamu metoda setFilterDateFrom
+        self.dateFilterFrom.setDate(date.today()) 
         self.dateFilterTo.setCalendarPopup(True)
         self.dateFilterTo.setDate(date.today())
 
         self.graphicalOutput = MatplotlibWidget()
+        
         #self.graphicalOutput.widget = MplWidget()
+
+    def showMessageBox(self, text):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setText(text)
+        msgBox.exec()
+
+    def newProjectCheckName(self, newProject):
+        existingProjects = glob.glob('*.sqlite')
+        for project in existingProjects:
+            if newProject == os.path.splitext(project)[0]:
+                return False
+    
+        return True
+
+    
+
+    def openInitialDialog(self, dialog, dialogNewProject):
+        #dialog.setModal(True)
+        selectedItemIndex = self.initialDialog.listView.currentIndex().row()
+        while selectedItemIndex == -1:
+            result = dialog.exec()
+            if result == QtWidgets.QDialog.Rejected:
+                resultNewProject = dialogNewProject.exec()
+                if resultNewProject == QtWidgets.QDialog.Rejected:
+                    self.dialogNewProject.lineEdit.clear()
+                else:
+                    inputText = self.dialogNewProject.lineEdit.text()
+                    if self.newProjectCheckName(inputText):
+                        self.projectName = inputText + '.sqlite'
+                        break
+                    else:
+                        self.dialogNewProject.lineEdit.clear()
+                        self.showMessageBox("The project already exists.")
+            else:
+                #self.projectName = 'tracker.sqlite'
+                selectedItemIndex = self.initialDialog.listView.currentIndex().row()
+                if selectedItemIndex == -1:
+                    self.showMessageBox("No project has been selected.")
+                else:
+                    self.projectName = self.initialDialog._model._data[selectedItemIndex]
+
 
    
     def newDialog(self, filePath, title):
@@ -65,7 +157,7 @@ class TrackerCtrl():
     """MyWindow Controller class."""
     def __init__(self, view):
         self._view = view
-        self.connection = self.create_connection('tracker.sqlite')
+        self.connection = self.create_connection(self._view.projectName)
         self.queryCreateTableCathegory = """
                                             CREATE TABLE IF NOT EXISTS cathegory
                                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -130,9 +222,11 @@ class TrackerCtrl():
 
     
     def setFilterDateFrom(self, data):
-        if self._model.data: # pokud to nebude fungovat v pripade prazdne tabulky, tak to vyresit tak, ze budto dam natvrdo [('', '', '', '')], pripadne try a chytit vyjimku
+        try:
             dateFrom = datetime.strptime(list(data[0])[2], '%d.%m.%Y')
-            return dateFrom
+        except ValueError:
+            dateFrom = datetime.today()
+        return dateFrom
 
 
 
@@ -520,7 +614,7 @@ class TrackerCtrl():
         print(self.MplWidget.pandasDataCathegory)
 
     def _connectSignals(self):
-        """It finds buttons and it joins them with respective signals"""
+        """It finds buttons and it joins them with respective plots"""
         btnGraphics = self._view.BtnGraphics
         btn = self._view.pushButton
         dateEditFrom = self._view.dateFilterFrom
@@ -545,6 +639,22 @@ class TrackerCtrl():
         btnGraphics.clicked.connect(self.showGraphics)
 
 
+
+class ModelProjects(QtCore.QAbstractListModel):
+    def __init__(self):
+        super(ModelProjects, self).__init__()
+        self._data = self.findProjectsInFolder()
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self._data[index.row()]
+
+    def rowCount(self, index):
+        """The length of the outer list."""
+        return len(self._data)
+
+    def findProjectsInFolder(self):
+        return glob.glob('*.sqlite')
 
 class MyModel(QtCore.QAbstractTableModel):
     def __init__(self):
@@ -632,21 +742,11 @@ class  MatplotlibWidget(QtWidgets.QMainWindow):
 def main():
     app = QtWidgets.QApplication([])
     window = MyWindow()
-    ctrl = TrackerCtrl(view=window)
+    if window.projectName:
+        crtl = TrackerCtrl(view=window)
+
     return app.exec()
 
 
 main()
 
-####################################
-
-# Zamyslet se nad logikou a pridat okno, ktere se objevi hned pri otevreni a bude se dotazovat, zda chci novy projekt,
-# ci otevrit stavajici. (funkce, ktera v adresari najde vsechny soubory s urcitou priponou???????)
-####### udelat nejake okno, ktere se otevre pri prvnim otevreni.
-# zepta se, jestli chceme otevrit stavajici projekt, ci vytvorit novy
-# Pri vytvareni noveho, vytvori novy soubor databaze. Nazvy databazi pak 
-# budou v nabidce pro otevreni predchozich projektu.
-
-
-##########
-# set filterFrom se nastavi defaultne na hodnotu zaznamu s nejstarsim datem. Pak by se vyresila.

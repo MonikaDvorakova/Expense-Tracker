@@ -96,7 +96,6 @@ class MplWidget(QtWidgets.QWidget):
             df = pandas.DataFrame(vyslednySlovnik, index=dates)
             print(df)
             print(vyslednySlovnik)
-            # budu prochazet radky.zajima me kategorie, potom me zajima datum, to porovnam, jestli je mezi dvemi hodnotami
             
             print(type(items_sorted['date'][1]))
             return df
@@ -124,8 +123,6 @@ class MplWidget(QtWidgets.QWidget):
 
 
 
-
-    ### je potreba udelat groupby a secist hodnoty amount pro ednotlive kategorie. Vysledna tabulka se pak pouzije pro vykresleni
 
 
     def plotPandasCathegory(self):
