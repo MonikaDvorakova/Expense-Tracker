@@ -192,9 +192,11 @@ class TrackerCtrl():
         self._model = MyModel()
         self.ModelData(self.connection, self.queryModel, ())
         self.header = self._view.tableView.horizontalHeader()
+        self.header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch) # Columns are stretched according to the widget width
         self._view.tableView.setHorizontalHeader (self.header)
         self._viewTable = self._view.tableView
         self._viewTable.setModel(self._model)
+        self._viewTable.setSelectionBehavior(QtWidgets.QTableView.SelectRows) #When clicked inside the table, whole row is selected
 
         self.filterDateFrom = None
         self.filterDateTo = None
@@ -685,6 +687,21 @@ class MyModel(QtCore.QAbstractTableModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             return self._data[index.row()][index.column()]
+        if role == QtCore.Qt.TextAlignmentRole and index.column() == 3:
+            return QtCore.Qt.AlignRight
+        if role == QtCore.Qt.FontRole and index.column() == 3:
+            font = QtGui.QFont()
+            font.setBold(True)
+            return font
+        if role == QtCore.Qt.ForegroundRole and index.column() == 3:
+            return QtGui.QColor(Qt.red)
+
+
+            
+    #def data(self, index, role=QtCore.Qt.DisplayRole):
+        #if role == QtCore.Qt.TextAlignmentRole and index.column() == 3:
+             #return QtCore.Qt.AlignHCenter
+        #return super(MyModel, self).data(index, role)
 
     def rowCount(self, index):
         """The length of the outer list."""
