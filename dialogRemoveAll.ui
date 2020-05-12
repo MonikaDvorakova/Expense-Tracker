@@ -7,18 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>0</height>
+    <height>180</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>50</x>
      <y>30</y>
-     <width>254</width>
+     <width>297</width>
      <height>68</height>
     </rect>
    </property>
@@ -26,7 +26,7 @@
     <item>
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>Do you want to remove all persons and cathegories?</string>
+       <string>Do you want to remove the selected item from the database?</string>
       </property>
      </widget>
     </item>

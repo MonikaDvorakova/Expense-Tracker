@@ -15,6 +15,7 @@ from  matplotlib.figure  import  Figure
 import  numpy  as  np 
 import  random
 import glob, os
+import pandas
 
 for files in glob.glob('*.sqlite'):
     print(os.path.splitext(files)[0])
@@ -36,7 +37,7 @@ class InitialWindow(QtWidgets.QDialog):
         btnNew = self.btnNewProject
         btnOpen.clicked.connect(self.accept)
         btnNew.clicked.connect(self.reject)
-        self.findProjectsInFolder()
+        #self.findProjectsInFolder()
         self._model = ModelProjects()
         self.listView.setModel(self._model)
         self.selectedItem = self.listView.currentIndex()
@@ -45,12 +46,12 @@ class InitialWindow(QtWidgets.QDialog):
 
         
 
-    def closeFunction(self):
-        self.accept()
-        print('zavri okno')
+    #def closeFunction(self):
+        #self.accept()
+        #print('zavri okno')
     
-    def findProjectsInFolder(self):
-        print(glob.glob('*.sqlite'))
+    #def findProjectsInFolder(self):
+        #print(glob.glob('*.sqlite'))
 
 
 
@@ -73,14 +74,14 @@ class MyWindow(QtWidgets.QMainWindow):
 
 
         self.loadWindowUi()
-        self.setWindowTitle('Expense Tracker')
+        self.setWindowTitle('Expense Tracker') ##############################################
         self.show()
 
         self.dialogNewProject = QtWidgets.QDialog()
         uic.loadUi("dialog_NewProject.ui",self.dialogNewProject)
 
         self.initialDialog = InitialWindow()
-        self.openInitialDialog(self.initialDialog, self.dialogNewProject)
+        self.openInitialDialog(self.initialDialog, self.dialogNewProject) ############
 
 
 
@@ -93,8 +94,18 @@ class MyWindow(QtWidgets.QMainWindow):
         self.dateFilterTo.setDate(date.today())
 
         self.graphicalOutput = MatplotlibWidget()
+
+        
         
         #self.graphicalOutput.widget = MplWidget()
+
+    def setTitle(self, projectName):
+        if projectName:
+            if projectName.endswith('.sqlite'):
+                projectName = projectName[:-7]
+            self.setWindowTitle('Expense Tracker - ' + projectName)
+        else:
+            self.setWindowTitle('Expense Tracker')
 
     def showMessageBox(self, text):
         msgBox = QtWidgets.QMessageBox()
@@ -109,11 +120,20 @@ class MyWindow(QtWidgets.QMainWindow):
     
         return True
 
+    def openNewProject(self):
+        self.window = MyWindow()
+        self.window.show()
+        self.ctrl = TrackerCtrl(view=self.window)
+        self.close()
+
+
     
 
-    def openInitialDialog(self, dialog, dialogNewProject):
+    def openInitialDialog(self, dialog, dialogNewProject): #########################
         #dialog.setModal(True)
+        print('spusten initial dialog')
         selectedItemIndex = self.initialDialog.listView.currentIndex().row()
+        print(selectedItemIndex)
         while selectedItemIndex == -1:
             result = dialog.exec()
             if result == QtWidgets.QDialog.Rejected:
@@ -124,6 +144,12 @@ class MyWindow(QtWidgets.QMainWindow):
                     inputText = self.dialogNewProject.lineEdit.text()
                     if self.newProjectCheckName(inputText):
                         self.projectName = inputText + '.sqlite'
+                        self.setTitle(inputText)
+                        self.initialDialog.listView.setCurrentIndex(QtCore.QModelIndex())
+                        self.dialogNewProject.lineEdit.clear()
+                        #self.initialDialog._model.layoutChanged.emit()
+                        #self.initialDialog._model._data = self.initialDialog._model.findProjectsInFolder()
+                        #self.initialDialog._model.layoutChanged.emit()
                         break
                     else:
                         self.dialogNewProject.lineEdit.clear()
@@ -135,6 +161,12 @@ class MyWindow(QtWidgets.QMainWindow):
                     self.showMessageBox("No project has been selected.")
                 else:
                     self.projectName = self.initialDialog._model._data[selectedItemIndex]
+                    self.setTitle(self.projectName)
+                    self.initialDialog.listView.setCurrentIndex(QtCore.QModelIndex())
+                    #self.initialDialog._model.layoutChanged.emit()
+                    #self.initialDialog._model._data = self.initialDialog._model.findProjectsInFolder()
+                    #self.initialDialog._model.layoutChanged.emit()
+
 
 
    
@@ -178,35 +210,36 @@ class TrackerCtrl():
                                          FOREIGN KEY(id_cathegory) REFERENCES cathegory(id)
                                          FOREIGN KEY(id_person) REFERENCES person(id))
                                         """
-        self.queryModel = """SELECT C.name, Pe.name, P.date, P.amount FROM purchase P
+        self.queryModel = """SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P 
                              INNER JOIN person Pe ON P.id_person=Pe.id
                              INNER JOIN cathegory C ON P.id_cathegory=C.id
-                            """
+                            """ 
 
         self.queryDatabase(self.connection, self.queryCreateTableCathegory, ())
-        self.addAllToTable(self.connection, 'cathegory')
+        #self.addAllToTable(self.connection, 'cathegory')
         self.queryDatabase(self.connection, self.queryCreateTablePerson, ())
-        self.addAllToTable(self.connection, 'person')
+        #self.addAllToTable(self.connection, 'person')
         self.queryDatabase(self.connection, self.queryCreateTablePurchase, ())
 
         self._model = MyModel()
-        self.ModelData(self.connection, self.queryModel, ())
+        self.ModelData(self.connection, self.queryModel, ()) 
         self.header = self._view.tableView.horizontalHeader()
         self.header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch) # Columns are stretched according to the widget width
         self._view.tableView.setHorizontalHeader (self.header)
         self._viewTable = self._view.tableView
         self._viewTable.setModel(self._model)
+        self._viewTable.hideColumn(4)
         self._viewTable.setSelectionBehavior(QtWidgets.QTableView.SelectRows) #When clicked inside the table, whole row is selected
 
-        self.filterDateFrom = None
+        self.filterDateFrom = None ##############################################
         self.filterDateTo = None
         self.filterCathegory = None
         self.filterPerson = None
         self.setTotalAmount()
 
 
-        self._view.dateFilterFrom.setDate(self.setFilterDateFrom(self._model._data))
-        self.setFilterDateFrom(self._model._data)
+        self._view.dateFilterFrom.setDate(self.setFilterDateFrom(self._model._data)) ######################################
+        #self.setFilterDateFrom(self._model._data)#############################
         # Connect signals and slots
         self._connectSignals()
 
@@ -222,13 +255,50 @@ class TrackerCtrl():
 
         self.MplWidget = self._view.graphicalOutput.MplWidget
 
+
+    # potrebuji funkci, ktera vypise vybranou polozku z tabulky (jeji index), napr po kliknuti na filter button.
+    # Zjistit, jak vypadaji data, ktera jdou do model, pripadne je upravit tak, aby tam slo i ID. ID ale pak nechci aby se zobrazovalo ve view
+
+    def deleteItem(self):
+        selectedRowIndex = self._view.tableView.currentIndex().row()
+        if selectedRowIndex == -1:
+            self.showMessageBox('Select an item to be deleted!')
+            return
+        result = self._view.dialogRemoveAll.exec()
+        if result == QtWidgets.QDialog.Rejected:
+            return
+        query = """DELETE FROM purchase WHERE id = (?)"""
+        selectedItemID = self._model._data[selectedRowIndex][4]
+        print(self._model._data[selectedRowIndex])
+        del self._model._data[selectedRowIndex]
+        self.queryDatabase(self.connection, query, (selectedItemID,))
+        if not self._model._data:
+            self._model._data = [('','','','', '')]
+        self._model.layoutChanged.emit()
+        self._view.dateFilterFrom.setDate(self.setFilterDateFrom(self._model._data))
+        self.setTotalAmount()
+        print(selectedRowIndex)
+
+        # musim to take odstranit z dat v modelu, nejenom z databaze. To se zde neprojevi
+        
+        #print(self._model._data[self._view.tableView.currentIndex().row()][4])
+        #self.initialDialog.listView.currentIndex().row()
+        ## pokud neni nic vybrano, tak vrati id posledniho prvku ze seznamu
+        # pripojit to k soucasnemu remove all
+
     
     def setFilterDateFrom(self, data):
-        try:
-            dateFrom = datetime.strptime(list(data[0])[2], '%d.%m.%Y')
-        except ValueError:
+        """Prevest data na pandas a pak najit minimalni hodnotu pomoci nsmallest nebo min."""
+        if data != [('', '', '', '', '')]:
+            items = pandas.DataFrame(data, columns =['cathegory', 'person', 'date', 'amount', 'id'])
+            items['date'] = pandas.to_datetime(items['date'], dayfirst=True)
+            new_items = items.set_index('date')
+            minimal_date = new_items.index.min()
+            print(minimal_date)
+            return minimal_date
+        else:
             dateFrom = datetime.today()
-        return dateFrom
+            return dateFrom
 
 
 
@@ -257,7 +327,7 @@ class TrackerCtrl():
         msgBox.setText(text)
         msgBox.exec()
     
-    def addAllToTable(self, connection, table):
+    '''def addAllToTable(self, connection, table):
         """Add all to tables (used fo table Cathegory and Person)"""
         cursor = connection.cursor()
         query = f'INSERT INTO {table} (name) VALUES ("all")'
@@ -266,7 +336,7 @@ class TrackerCtrl():
             connection.commit()
             print("Query executed successfully")
         except Error as e:
-            print(f"The error '{e}' occurred")
+            print(f"The error '{e}' occurred")'''
 
     def select_query(self, connection, query, param):
         """"Is used in all queries which returns something"""
@@ -298,9 +368,9 @@ class TrackerCtrl():
             data[index] = newTuple
         return data
 
-    def ModelData(self, connection, query, param):
+    def ModelData(self, connection, query, param): 
         """Ask database and hand data to the model"""
-        dataEmpty = [('','','','')]
+        dataEmpty = [('','','','', '')]
         result = self.select_query(connection, query, param)
         if result:
             data = self.convertDateInData(result)
@@ -367,50 +437,60 @@ class TrackerCtrl():
         except ValueError:
             self.showMessageBox("Write the price of the purchase as whole number")
         else:
-            boxCathegory = self._view.boxCathegory.currentText()
-            boxPerson = self._view.boxPerson.currentText()
+            boxCathegory = self._view.boxCathegory.currentText() # pokud je ''
+            boxPerson = self._view.boxPerson.currentText() # pokud je ''
             dateAdd = self._view.dateAdd.date()
             dateString = dateAdd.toString('yyyy-MM-dd')
             queryPerson = """SELECT id FROM person WHERE name = (?)"""
             queryCathegory = """SELECT id FROM cathegory WHERE name = (?)"""
-            idPerson = int(self.findIdOfItem(self.connection, queryPerson, boxPerson)[0][0])
-            idCathegory = int(self.findIdOfItem(self.connection, queryCathegory, boxCathegory)[0][0])
-            query = """INSERT INTO purchase (amount, date, id_cathegory, id_person) VALUES (?, ?, ?, ?)"""
-            param = (amountText, dateString, idCathegory, idPerson,)
-            self.queryDatabase(self.connection, query, param)
-            self.ModelData(self.connection, self.queryModel, ())
-            self._model.layoutChanged.emit()
-            self.setTotalAmount()
-            self.resetAddPurchase()
+            if boxPerson and boxCathegory:
+                idPerson = int(self.findIdOfItem(self.connection, queryPerson, boxPerson)[0][0])
+                idCathegory = int(self.findIdOfItem(self.connection, queryCathegory, boxCathegory)[0][0])
+                query = """INSERT INTO purchase (amount, date, id_cathegory, id_person) VALUES (?, ?, ?, ?)"""
+                param = (amountText, dateString, idCathegory, idPerson,)
+                self.queryDatabase(self.connection, query, param)
+                self.ModelData(self.connection, self.queryModel, ())
+                self._model.layoutChanged.emit()
+                self._viewTable.hideColumn(4)
+                self.setTotalAmount()
+                self.resetAddPurchase()
+                self._view.dateFilterFrom.setDate(self.setFilterDateFrom(self._model._data))
+            elif boxPerson:
+                self.showMessageBox("Select cathegory")
+            elif boxCathegory:
+                self.showMessageBox("Select person")
+            else:
+                self.showMessageBox("Select cathegory and person")
+
 
     def btnFilterClick(self):
         """"It filters the data from the purchase table for the viewTable"""
         query = None
         param = None
         queryPerCat = """
-                    SELECT C.name, Pe.name, P.date, P.amount FROM purchase P
+                    SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P
                     INNER JOIN person Pe ON P.id_person=Pe.id
                     INNER JOIN cathegory C ON P.id_cathegory=C.id
                     WHERE P.date BETWEEN (?) AND (?)
                     AND Pe.name=(?)
                     AND c.name=(?)
-                """
+                """ 
         queryCathegory = """
-                    SELECT C.name, Pe.name, P.date, P.amount FROM purchase P
+                    SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P
                     INNER JOIN person Pe ON P.id_person=Pe.id
                     INNER JOIN cathegory C ON P.id_cathegory=C.id
                     WHERE P.date BETWEEN (?) AND (?)
                     AND c.name=(?)
-                """
+                """ 
         queryPerson = """
-                    SELECT C.name, Pe.name, P.date, P.amount FROM purchase P
+                    SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P
                     INNER JOIN person Pe ON P.id_person=Pe.id
                     INNER JOIN cathegory C ON P.id_cathegory=C.id
                     WHERE P.date BETWEEN (?) AND (?)
                     AND Pe.name=(?)
-                """
+                """ 
         queryDates = """
-                    SELECT C.name, Pe.name, P.date as date, P.amount FROM purchase P
+                    SELECT C.name, Pe.name, P.date as date, P.amount, P.id FROM purchase P
                     INNER JOIN person Pe ON P.id_person=Pe.id
                     INNER JOIN cathegory C ON P.id_cathegory=C.id
                     WHERE p.date BETWEEN (?) AND (?)
@@ -434,7 +514,7 @@ class TrackerCtrl():
         else:
             query = queryPerCat
             param = (self.filterDateFrom, self.filterDateTo, self.filterPerson, self.filterCathegory)
-            self.ModelData(self.connection, query, param)
+            self.ModelData(self.connection, query, param) ##################
         self.setTotalAmount()
  
     def dialogExecutionAdd(self, dialogWindow, queryDatabase, table, box1, box2):
@@ -455,9 +535,10 @@ class TrackerCtrl():
         self.fillDropBoxFilter(self.connection, table, box2)
 
 
-        
+    def openProject(self):
+        pass
 
-    def dialogExecutionRemove(self, dialogWindow, queryDatabase, table, box1, box2):
+    def dialogExecutionRemove(self, dialogWindow, queryDatabase, table, box1, box2): #########################
         """It removes an item from the table(person/cathegory), if it is there.
         It refreshes the items of dropboxes. It is used in openDialog() method
         """
@@ -472,7 +553,7 @@ class TrackerCtrl():
         self.fillDropBox(self.connection, table, box1)
         self.fillDropBoxFilter(self.connection, table, box2)
 
-    def dialogExecutionRemoveAll(self, table1, table2, boxes):
+    '''def dialogExecutionRemoveAll(self, table1, table2, boxes): ##########################################################################
         """It removes all items from the tables cathegory and person"""
         result = self._view.dialogRemoveAll.exec()
         query1 = f'DELETE FROM {table1}'
@@ -490,7 +571,7 @@ class TrackerCtrl():
         except Error as e:
             print(f"The error '{e}' occurred")
         for box in boxes:
-            box.clear()
+            box.clear()'''
 
     def openDialog(self):
         """Depending on pressed button from toolbar, it opens dialog window, which serves
@@ -504,15 +585,24 @@ class TrackerCtrl():
         elif  pressedBtn == 'new person':
             self.dialogExecutionAdd(self._view.dialogPerson, self.queryAddPerson, 'person', self._view.boxPerson, self._view.boxPersonFilter)
 
-        elif pressedBtn == 'remove person':
-            self.dialogExecutionRemove(self._view.dialogPersonRemove, self.queryRemovePerson, 'person', self._view.boxPerson, self._view.boxPersonFilter)
+        elif pressedBtn == 'open project':
+            #####################
+            # potreba vytvorit funkci, ktera nastavi zacatek a zavola se pokazde, kdyz se vytvori novy projekt v ramci kliknuti na tento cudlik.
+            # potreba vytvorit tabulky. Otazka, zda neni jednodussi to rozdelit. Vytvorit novy ctrl
+            self._view.openNewProject()
+            #self._view.projectName = None
+            #self._view.initialDialog._model._data = self._view.initialDialog._model.findProjectsInFolder()
+            #self._view.openInitialDialog(self._view.initialDialog, self._view.dialogNewProject)
+            #self.connection = self.create_connection(self._view.projectName)
+            #self.ModelData(self.connection, self.queryModel, ())
+            ##########################################################
+            #self.dialogExecutionRemove(self._view.dialogPersonRemove, self.queryRemovePerson, 'person', self._view.boxPerson, self._view.boxPersonFilter)
         
-        elif pressedBtn == 'remove cathegory':
-            self.dialogExecutionRemove(self._view.dialogCathegoryRemove, self.queryRemoveCathegory, 'cathegory', self._view.boxCathegory, self._view.boxCathegoryFilter)
+        #elif pressedBtn == 'delete item':
+            #self.dialogExecutionRemove(self._view.dialogCathegoryRemove, self.queryRemoveCathegory, 'cathegory', self._view.boxCathegory, self._view.boxCathegoryFilter)
 
-        elif pressedBtn == 'remove all':
-            boxes = [self._view.boxCathegory, self._view.boxCathegoryFilter, self._view.boxPerson, self._view.boxPersonFilter]
-            self.dialogExecutionRemoveAll('cathegory', 'person', boxes)
+        elif pressedBtn == 'delete item':
+            self.deleteItem()
     
     def setDateTo(self):
         """It ensures that the dates from and to are valid.
@@ -550,31 +640,31 @@ class TrackerCtrl():
         except TypeError:
             pass
         else:
-            queryAll = ('SELECT C.name, Pe.name, P.date, P.amount '
+            queryAll = ('SELECT C.name, Pe.name, P.date, P.amount, P.id '
                         'FROM purchase P '
                         'INNER JOIN person Pe ON P.id_person=Pe.id '
                         'INNER JOIN cathegory C ON P.id_cathegory=C.id ' 
                         'ORDER BY {} {}'.format(sortedBy, sorting))
-            queryPC = ('SELECT C.name, Pe.name, P.date, P.amount FROM purchase P '
+            queryPC = ('SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P '
                         'INNER JOIN person Pe ON P.id_person=Pe.id '
                         'INNER JOIN cathegory C ON P.id_cathegory=C.id '
                         'WHERE P.date BETWEEN (?) AND (?) '
                         'AND Pe.name=(?) '
                         'AND c.name=(?) '
                         'ORDER BY {} {}'.format(sortedBy, sorting))
-            queryCathegory = ('SELECT C.name, Pe.name, P.date, P.amount FROM purchase P '
+            queryCathegory = ('SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P '
                             'INNER JOIN person Pe ON P.id_person=Pe.id '
                             'INNER JOIN cathegory C ON P.id_cathegory=C.id '
                             'WHERE P.date BETWEEN (?) AND (?) '
                             'AND c.name=(?) '
                             'ORDER BY {} {}'.format(sortedBy, sorting))
-            queryPerson = ('SELECT C.name, Pe.name, P.date, P.amount FROM purchase P '
+            queryPerson = ('SELECT C.name, Pe.name, P.date, P.amount, P.id FROM purchase P '
                         'INNER JOIN person Pe ON P.id_person=Pe.id '
                         'INNER JOIN cathegory C ON P.id_cathegory=C.id '
                         'WHERE P.date BETWEEN (?) AND (?) '
                         'AND Pe.name=(?) '
                         'ORDER BY {} {}'.format(sortedBy, sorting))
-            queryDates = ('SELECT C.name, Pe.name, P.date as date, P.amount FROM purchase P '
+            queryDates = ('SELECT C.name, Pe.name, P.date as date, P.amount, P.id FROM purchase P '
                         'INNER JOIN person Pe ON P.id_person=Pe.id '
                         'INNER JOIN cathegory C ON P.id_cathegory=C.id '
                         'WHERE p.date BETWEEN (?) AND (?) '
@@ -602,18 +692,20 @@ class TrackerCtrl():
                     self.ModelData(self.connection, query, param)
 
     def showGraphics(self):
+        if len(self._model._data) > 1: ### toto ulozit nekam nahoru do promenne, aby se dalo menit jen na jednom miste
+            self.MplWidget.pandasDataCathegory = self.MplWidget.pandasConvert(self._model._data, 'cathegory')
+            self.MplWidget.pandasDataPerson = self.MplWidget.pandasConvert(self._model._data, 'person')
+            self.MplWidget.pandasDataAmountInTime = self.MplWidget.pandasConvertDateChart(self._model._data, 'date') #####################
+            if self.MplWidget.firstPlotting:
+                self.MplWidget.subsequentPlot()
+            else:
+                self.MplWidget.firstPlot()
+                self.MplWidget.firstPlotting = True
 
-        self.MplWidget.pandasDataCathegory = self.MplWidget.pandasConvert(self._model._data, 'cathegory')
-        self.MplWidget.pandasDataPerson = self.MplWidget.pandasConvert(self._model._data, 'person')
-        self.MplWidget.pandasDataAmountInTime = self.MplWidget.pandasConvertDateChart(self._model._data, 'date')
-        if self.MplWidget.firstPlotting:
-            self.MplWidget.subsequentPlot()
+            self._view.graphicalOutput.show()
+            print(self.MplWidget.pandasDataCathegory)
         else:
-            self.MplWidget.firstPlot()
-            self.MplWidget.firstPlotting = True
-
-        self._view.graphicalOutput.show()
-        print(self.MplWidget.pandasDataCathegory)
+            self.showMessageBox('Not enough data in the database!')
 
     def _connectSignals(self):
         """It finds buttons and it joins them with respective plots"""
@@ -624,14 +716,16 @@ class TrackerCtrl():
         btnFilter = self._view.btnFilter
         btnAddPerson = self._view.actionnew_person
         btnAddCathegory = self._view.actionnew_cathegory
-        btnRemoveCathegory = self._view.actionremove_cathegory
+        #btnRemoveCathegory = self._view.actionremove_cathegory #####################
         btnRemovePerson = self._view.actionremove_person
         btnRemoveAll = self._view.actionremove_all
         btnSort = self._view.btnSort
         btnAddPerson.triggered.connect(self.openDialog)
         btnAddCathegory.triggered.connect(self.openDialog)
         btnRemovePerson.triggered.connect(self.openDialog)
-        btnRemoveCathegory.triggered.connect(self.openDialog)
+        #openDialogForNewProject = lambda x, y, func: func(x, y)
+        #btnRemoveCathegory.triggered.connect(openDialogForNewProject(self._view.initialDialog, self._view.dialogNewProject, self._view.openInitialDialog))
+        #btnRemoveCathegory.triggered.connect(lambda x,y, func: func(x, y))(self._view.initialDialog, self._view.dialogNewProject, self._view.openInitialDialog) ##################
         btnRemoveAll.triggered.connect(self.openDialog)
         btn.clicked.connect(self._buttonClick)
         btnFilter.clicked.connect(self.btnFilterClick)
@@ -661,7 +755,7 @@ class ModelProjects(QtCore.QAbstractListModel):
 class MyModel(QtCore.QAbstractTableModel):
     def __init__(self):
         super(MyModel, self).__init__()
-        self._data = [('','','','')]
+        self._data = [('','','','', '')]
 
     def countAmount(self, data):
         """Calculates the total price of all items in the data"""
@@ -709,11 +803,12 @@ class MyModel(QtCore.QAbstractTableModel):
 
     def columnCount(self, index):
         """The length of the tuples"""
+        print(self._data)
         return len(self._data[0])
 
     def headerData(self, section, orientation, role):
         # section is the index of the column/row.
-        columns = ['Cathegory', 'Person', 'Date', 'Amount']
+        columns = ['Cathegory', 'Person', 'Date', 'Amount', 'ID']
         listIndexes = self.createListOfIndexes()
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
@@ -753,12 +848,17 @@ class  MatplotlibWidget(QtWidgets.QMainWindow):
 
 
         
-        
+    # Zkusit dat vytvoreni ctrl do initialwindow, pak by se vytvoril ctrl pro kazde nove okno. V miste, kde davam hodnotu projectName.
+    # potom by se automaticky vytvoril ctrl pro kazde otevrene okno. 
 
 
 def main():
     app = QtWidgets.QApplication([])
     window = MyWindow()
+    def createTracker():
+        return TrackerCtrl(view=window)
+    btnPerson = window.btnSort
+    btnPerson.clicked.connect(createTracker)
     if window.projectName:
         crtl = TrackerCtrl(view=window)
 

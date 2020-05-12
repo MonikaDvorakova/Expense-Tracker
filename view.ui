@@ -37,6 +37,13 @@
     </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_6">
+      <item row="1" column="0">
+       <widget class="QTableView" name="tableView">
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QFrame" name="frame_2">
         <property name="frameShape">
@@ -96,7 +103,7 @@
          <item row="0" column="7">
           <widget class="QPushButton" name="pushButton">
            <property name="text">
-            <string>PushButton</string>
+            <string>Add</string>
            </property>
           </widget>
          </item>
@@ -114,13 +121,6 @@
           </spacer>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QTableView" name="tableView">
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
       <item row="1" column="1">
@@ -321,7 +321,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>30</x>
@@ -351,7 +351,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Total sum:</string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -393,7 +393,6 @@
    <addaction name="separator"/>
    <addaction name="actionremove_person"/>
    <addaction name="separator"/>
-   <addaction name="actionremove_cathegory"/>
    <addaction name="separator"/>
    <addaction name="actionremove_all"/>
    <addaction name="separator"/>
@@ -407,9 +406,6 @@
    </property>
   </action>
   <action name="actionnew_cathegory">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>new cathegory</string>
    </property>
@@ -419,17 +415,18 @@
   </action>
   <action name="actionremove_person">
    <property name="text">
-    <string>remove person</string>
+    <string>open project</string>
    </property>
-  </action>
-  <action name="actionremove_cathegory">
-   <property name="text">
-    <string>remove cathegory</string>
+   <property name="toolTip">
+    <string>open existing project or create new one</string>
    </property>
   </action>
   <action name="actionremove_all">
    <property name="text">
-    <string>remove all</string>
+    <string>delete item</string>
+   </property>
+   <property name="toolTip">
+    <string>delete item from database</string>
    </property>
   </action>
  </widget>

@@ -50,10 +50,11 @@ class MplWidget(QtWidgets.QWidget):
 
 
 
-    
+
+
     def pandasConvert(self, data, index):
         if data:
-            items = pandas.DataFrame(data, columns =['cathegory', 'person', 'date', 'amount'])
+            items = pandas.DataFrame(data, columns =['cathegory', 'person', 'date', 'amount', 'id'])
             new_items = items.set_index(index)
             itemsGrouped = new_items.groupby(level=0).sum()
 
@@ -62,7 +63,7 @@ class MplWidget(QtWidgets.QWidget):
 
     def pandasConvertDateChart(self, data, index):
         if data:
-            items = pandas.DataFrame(data, columns =['cathegory', 'person', 'date', 'amount'])
+            items = pandas.DataFrame(data, columns =['cathegory', 'person', 'date', 'amount', 'id'])
             items['date'] = pandas.to_datetime(items['date'], dayfirst=True)
             #new_items = items.set_index(index)
 
