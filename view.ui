@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>687</width>
+    <width>928</width>
     <height>629</height>
    </rect>
   </property>
@@ -369,7 +369,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>687</width>
+     <width>928</width>
      <height>21</height>
     </rect>
    </property>
@@ -391,10 +391,10 @@
    <addaction name="separator"/>
    <addaction name="actionnew_cathegory"/>
    <addaction name="separator"/>
-   <addaction name="actionremove_person"/>
+   <addaction name="actionOpenProject"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
-   <addaction name="actionremove_all"/>
+   <addaction name="actionDeleteItem"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionnew_person">
@@ -413,7 +413,7 @@
     <string>add new cathegory</string>
    </property>
   </action>
-  <action name="actionremove_person">
+  <action name="actionOpenProject">
    <property name="text">
     <string>open project</string>
    </property>
@@ -421,7 +421,7 @@
     <string>open existing project or create new one</string>
    </property>
   </action>
-  <action name="actionremove_all">
+  <action name="actionDeleteItem">
    <property name="text">
     <string>delete item</string>
    </property>
