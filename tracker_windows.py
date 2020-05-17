@@ -13,6 +13,7 @@ class InitialWindow(QtWidgets.QDialog):
         super().__init__()
         uic.loadUi("initial_dialog.ui",self)
         self.setWindowTitle("Initiate project")
+        self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
         btnOpen = self.btnOpenProject
         btnNew = self.btnNewProject
         btnOpen.clicked.connect(self.accept)
@@ -26,9 +27,13 @@ class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__()
         self.windowUi = 'view.ui'
-
         self.loadWindowUi()
         self.setWindowTitle('Expense Tracker')
+        self.actionnew_person.setIcon(QtGui.QIcon('icons/addPerson.png'))
+        self.actionOpenProject.setIcon(QtGui.QIcon('icons/open.png'))
+        self.actionnew_cathegory.setIcon(QtGui.QIcon('icons/addCathegory.png'))
+        self.actionDeleteItem.setIcon(QtGui.QIcon('icons/delete.png'))
+        self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
         self.show()
 
         self.projectName = None
@@ -54,6 +59,8 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.graphicalOutput = MatplotlibWidget()
 
+
+
     def setTitle(self, projectName):
         """Sets format of the main window: Expense Tracker - 'name of the project'."""
         if projectName:
@@ -67,6 +74,9 @@ class MyWindow(QtWidgets.QMainWindow):
         """Show messagebox with defined text."""
         msgBox = QtWidgets.QMessageBox()
         msgBox.setText(text)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+        msgBox.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
+        msgBox.setWindowTitle('Expense Tracker')
         msgBox.exec()
 
     def newProjectCheckName(self, newProject):
@@ -125,6 +135,7 @@ class MyWindow(QtWidgets.QMainWindow):
         with open(filePath) as f:
             uic.loadUi(f, dialog)
         dialog.setWindowTitle(title)
+        self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
         return dialog
 
     def loadWindowUi(self):
@@ -141,4 +152,5 @@ class  MatplotlibWidget(QtWidgets.QMainWindow):
         self.setCentralWidget(self.MplWidget)
         self.setWindowTitle("Graphical output")
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
+        self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
 

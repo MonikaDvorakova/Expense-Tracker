@@ -37,92 +37,6 @@
     </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="1" column="0">
-       <widget class="QTableView" name="tableView">
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
-       <widget class="QFrame" name="frame_2">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="amount">
-           <property name="placeholderText">
-            <string>amount</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>cathegory:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QComboBox" name="boxCathegory">
-           <property name="currentText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>person:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="5">
-          <widget class="QComboBox" name="boxPerson"/>
-         </item>
-         <item row="0" column="6">
-          <widget class="QDateEdit" name="dateAdd"/>
-         </item>
-         <item row="0" column="7">
-          <widget class="QPushButton" name="pushButton">
-           <property name="text">
-            <string>Add</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="8">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QScrollArea" name="scrollArea">
         <property name="sizePolicy">
@@ -146,7 +60,7 @@
            <x>0</x>
            <y>0</y>
            <width>269</width>
-           <height>488</height>
+           <height>471</height>
           </rect>
          </property>
          <widget class="QPushButton" name="BtnGraphics">
@@ -360,6 +274,79 @@
         </widget>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QTableView" name="tableView">
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="amount">
+           <property name="placeholderText">
+            <string>amount</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>cathegory:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QComboBox" name="boxCathegory">
+           <property name="currentText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>person:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <widget class="QComboBox" name="boxPerson"/>
+         </item>
+         <item row="0" column="6">
+          <widget class="QDateEdit" name="dateAdd"/>
+         </item>
+         <item row="0" column="7">
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="8">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>270</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -380,6 +367,15 @@
    </property>
    <property name="autoFillBackground">
     <bool>false</bool>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>48</width>
+     <height>48</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>

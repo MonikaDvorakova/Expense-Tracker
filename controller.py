@@ -1,7 +1,7 @@
 from datetime import date, timedelta, datetime
 import sqlite3
 from sqlite3 import Error
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from data_models import MyModel
 import pandas
 
@@ -127,6 +127,9 @@ class TrackerCtrl():
     def showMessageBox(self, text):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setText(text)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
+        msgBox.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
+        msgBox.setWindowTitle('Expense Tracker')
         msgBox.exec()
 
     def select_query(self, connection, query, param):
