@@ -3,7 +3,8 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
 from datetime import date
 import glob, os
-from  matplotlib.backends.backend_qt5agg  import  (NavigationToolbar2QT  as  NavigationToolbar)
+from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as
+                                                NavigationToolbar)
 from controller import TrackerCtrl
 from data_models import ModelProjects
 
@@ -21,7 +22,7 @@ class InitialWindow(QtWidgets.QDialog):
         self._model = ModelProjects()
         self.listView.setModel(self._model)
         self.selectedItem = self.listView.currentIndex()
-    
+
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -42,27 +43,29 @@ class MyWindow(QtWidgets.QMainWindow):
         self.dialogRemove = 'design/dialogRemoveAll.ui'
         self.dialogPerson = self.newDialog(self.dialogUi, 'New person')
         self.dialogCathegory = self.newDialog(self.dialogUi, 'New cathegory')
-        self.dialogPersonRemove = self.newDialog(self.dialogUi, 'Remove person')
-        self.dialogCathegoryRemove = self.newDialog(self.dialogUi, 'Remove cathegory')
+        self.dialogPersonRemove = self.newDialog(self.dialogUi,
+                                                 'Remove person')
+        self.dialogCathegoryRemove = self.newDialog(self.dialogUi,
+                                                    'Remove cathegory')
         self.dialogRemoveAll = self.newDialog(self.dialogRemove, 'Remove all')
         self.dialogNewProject = QtWidgets.QDialog()
-        uic.loadUi("design/dialog_NewProject.ui",self.dialogNewProject)
+        uic.loadUi("design/dialog_NewProject.ui", self.dialogNewProject)
         self.initialDialog = InitialWindow()
         self.openInitialDialog(self.initialDialog, self.dialogNewProject)
 
         self.dateAdd.setCalendarPopup(True)
         self.dateAdd.setDate(date.today())
         self.dateFilterFrom.setCalendarPopup(True)
-        self.dateFilterFrom.setDate(date.today()) 
+        self.dateFilterFrom.setDate(date.today())
         self.dateFilterTo.setCalendarPopup(True)
         self.dateFilterTo.setDate(date.today())
 
         self.graphicalOutput = MatplotlibWidget()
 
-
-
     def setTitle(self, projectName):
-        """Sets format of the main window: Expense Tracker - 'name of the project'."""
+        """Sets format of the main window:
+        Expense Tracker - 'name of the project'.
+        """
         if projectName:
             if projectName.endswith('.sqlite'):
                 projectName = projectName[:-7]
@@ -95,12 +98,13 @@ class MyWindow(QtWidgets.QMainWindow):
         self.close()
 
     def openInitialDialog(self, dialog, dialogNewProject):
-        """Opens initial dialog, which is diplayed at the beggining of the program
-        and after clicking on button for opening of the projects. Either existing 
-        project is selected or new project is created.
+        """Opens initial dialog, which is diplayed at the beggining of
+        the program and after clicking on button for opening of
+        the projects. Either existing project is selected or
+        new project is created.
         """
         selectedItemIndex = self.initialDialog.listView.currentIndex().row()
-        while selectedItemIndex == -1: # no project selected
+        while selectedItemIndex == -1:  # no project selected
             result = dialog.exec()
             if result == QtWidgets.QDialog.Rejected:
                 resultNewProject = dialogNewProject.exec()
@@ -112,7 +116,6 @@ class MyWindow(QtWidgets.QMainWindow):
                         if self.newProjectCheckName(inputText):
                             self.projectName = inputText + '.sqlite'
                             self.setTitle(inputText)
-                            #self.initialDialog.listView.setCurrentIndex(QtCore.QModelIndex())
                             self.dialogNewProject.lineEdit.clear()
                             break
                         else:
@@ -121,13 +124,14 @@ class MyWindow(QtWidgets.QMainWindow):
                     else:
                         self.showMessageBox("Write a name of the new project.")
             else:
-                selectedItemIndex = self.initialDialog.listView.currentIndex().row()
+                selectedItemIndex = (self.initialDialog.listView.
+                                     currentIndex().row())
                 if selectedItemIndex == -1:
                     self.showMessageBox("No project has been selected.")
                 else:
-                    self.projectName = self.initialDialog._model._data[selectedItemIndex]
+                    self.projectName = (self.initialDialog.
+                                        _model._data[selectedItemIndex])
                     self.setTitle(self.projectName)
-                    #self.initialDialog.listView.setCurrentIndex(QtCore.QModelIndex())
 
     def newDialog(self, filePath, title):
         """Load dialog window from a file."""
@@ -144,13 +148,12 @@ class MyWindow(QtWidgets.QMainWindow):
             uic.loadUi(f, self)
 
 
-class  MatplotlibWidget(QtWidgets.QMainWindow):
+class MatplotlibWidget(QtWidgets.QMainWindow):
     """Window for graphical output."""
-    def  __init__(self):
-        QtWidgets.QWidget.__init__ (self)
-        uic.loadUi("design/graphics.ui",self)
+    def __init__(self):
+        QtWidgets.QWidget.__init__(self)
+        uic.loadUi("design/graphics.ui", self)
         self.setCentralWidget(self.MplWidget)
         self.setWindowTitle("Graphical output")
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
         self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
-

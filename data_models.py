@@ -3,11 +3,12 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
 import glob, os
 
+
 # model for table of the purchases
 class MyModel(QtCore.QAbstractTableModel):
     def __init__(self):
         super(MyModel, self).__init__()
-        self._data = [('','','','', '')]
+        self._data = [('', '', '', '', '')]
 
     def countAmount(self, data):
         """Calculates the total price of all items in the data."""
@@ -24,7 +25,7 @@ class MyModel(QtCore.QAbstractTableModel):
         """Used for creation of the header."""
         rows = len(self._data)
         list_indexes = []
-        for index in range (rows):
+        for index in range(rows):
             list_indexes.append(index+1)
         return list_indexes
 
@@ -59,7 +60,7 @@ class MyModel(QtCore.QAbstractTableModel):
                 return str(listIndexes[section])
 
 
-#Model for the list view of the sqlite files
+# Model for the list view of the sqlite files
 class ModelProjects(QtCore.QAbstractListModel):
     def __init__(self):
         super(ModelProjects, self).__init__()
