@@ -11,7 +11,7 @@ from data_models import ModelProjects
 class InitialWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        uic.loadUi("initial_dialog.ui",self)
+        uic.loadUi("design/initial_dialog.ui",self)
         self.setWindowTitle("Initiate project")
         self.setWindowIcon(QtGui.QIcon('icons/icon2.png'))
         btnOpen = self.btnOpenProject
@@ -26,7 +26,7 @@ class InitialWindow(QtWidgets.QDialog):
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__()
-        self.windowUi = 'view.ui'
+        self.windowUi = 'design/view.ui'
         self.loadWindowUi()
         self.setWindowTitle('Expense Tracker')
         self.actionnew_person.setIcon(QtGui.QIcon('icons/addPerson.png'))
@@ -38,15 +38,15 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.projectName = None
 
-        self.dialogUi = 'dialog.ui'
-        self.dialogRemove = 'dialogRemoveAll.ui'
+        self.dialogUi = 'design/dialog.ui'
+        self.dialogRemove = 'design/dialogRemoveAll.ui'
         self.dialogPerson = self.newDialog(self.dialogUi, 'New person')
         self.dialogCathegory = self.newDialog(self.dialogUi, 'New cathegory')
         self.dialogPersonRemove = self.newDialog(self.dialogUi, 'Remove person')
         self.dialogCathegoryRemove = self.newDialog(self.dialogUi, 'Remove cathegory')
         self.dialogRemoveAll = self.newDialog(self.dialogRemove, 'Remove all')
         self.dialogNewProject = QtWidgets.QDialog()
-        uic.loadUi("dialog_NewProject.ui",self.dialogNewProject)
+        uic.loadUi("design/dialog_NewProject.ui",self.dialogNewProject)
         self.initialDialog = InitialWindow()
         self.openInitialDialog(self.initialDialog, self.dialogNewProject)
 
@@ -148,7 +148,7 @@ class  MatplotlibWidget(QtWidgets.QMainWindow):
     """Window for graphical output."""
     def  __init__(self):
         QtWidgets.QWidget.__init__ (self)
-        uic.loadUi("graphics.ui",self)
+        uic.loadUi("design/graphics.ui",self)
         self.setCentralWidget(self.MplWidget)
         self.setWindowTitle("Graphical output")
         self.addToolBar(NavigationToolbar(self.MplWidget.canvas, self))
