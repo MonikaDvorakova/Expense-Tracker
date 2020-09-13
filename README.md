@@ -10,16 +10,17 @@ The application enables you visualize the expenses in the simple graphics. The v
 ## Requirements
 * Python 3
 * pyQt5 library
-
-**python -m pip install PyQt5**
+```
+python -m pip install PyQt5
+```
 * Pandas library
-
-**python -m pip install pandas**
-
+```
+python -m pip install pandas
+```
 * Matplotlib library
-
-**python -m pip install matplotlib**
-
+```
+python -m pip install matplotlib
+```
 ## How to use it
 
 * Use tracker.py to run the program.
